@@ -1,19 +1,32 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace EggMan
 {
     public class Game1 : Game
     {
+        // Class var declaerations
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        Texture2D rockTex;
+        public static readonly Random RNG = new Random();
+
+        MouseState ms;
+
+        Rock lavaRock;
+        Rock lavaRock2;
+        Rock lavaRock3;
+        Egg_Man PC;
+
+        public static Texture2D debugPixel;
+
+        /*Texture2D rockTex;
         Vector2 rockPos;
 
         Texture2D eggmanTex;
-        Vector2 eggmanPos;
+        Vector2 eggmanPos;*/
 
         Rectangle screenSize;
 
@@ -28,8 +41,10 @@ namespace EggMan
         {
             screenSize = GraphicsDevice.Viewport.Bounds;
 
-            rockPos = new Vector2(screenSize.Width / 2, 100);
-            eggmanPos = new Vector2(screenSize.Width / 2, screenSize.Height - 100);
+
+
+            /*rockPos = new Vector2(screenSize.Width / 2, 100);
+            eggmanPos = new Vector2(screenSize.Width / 2, screenSize.Height - 100);*/
 
             base.Initialize();
         }
@@ -38,17 +53,32 @@ namespace EggMan
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            rockTex = Content.Load<Texture2D>("eggman_rock");
-            eggmanTex = Content.Load<Texture2D>("eggman_sir_eggalot");
+            lavaRock = new Rock(Content.Load<Texture2D>("eggman_rock"), new Vector2(100,0));
+            lavaRock2 = new Rock(Content.Load<Texture2D>("eggman_rock"), new Vector2(100, 0));
+            lavaRock3 = new Rock(Content.Load<Texture2D>("eggman_rock"), new Vector2(100, 0));
+            PC = new Egg_Man(Content.Load<Texture2D>("eggman_sir_eggalot"), new Vector2(300,400));
+            debugPixel = Content.Load<Texture2D>("pixel");
+
+            /*rockTex = Content.Load<Texture2D>("eggman_rock");
+            eggmanTex = Content.Load<Texture2D>("eggman_sir_eggalot");*/
         }
 
         protected override void Update(GameTime gameTime)
         {
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            ms = Mouse.GetState();
 
-            // TODO: Add your update logic here
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))Exit();
+
+            lavaRock.UpdateMe(screenSize.Height, screenSize.Width);
+            lavaRock2.UpdateMe(screenSize.Height, screenSize.Width);
+            lavaRock3.UpdateMe(screenSize.Height, screenSize.Width);
+            PC.UpdateMe(ms.X, screenSize.Width);
+
+            if(lavaRock.HitBox.Intersects(PC.HitBox))
+            {
+                Exit();
+            }
 
             base.Update(gameTime);
         }
@@ -57,9 +87,13 @@ namespace EggMan
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            
+
             _spriteBatch.Begin();
-            _spriteBatch.Draw(rockTex, rockPos, Color.White);
-            _spriteBatch.Draw(eggmanTex, eggmanPos, Color.White);
+            lavaRock.DrawMe(_spriteBatch);
+            lavaRock2.DrawMe(_spriteBatch);
+            lavaRock3.DrawMe(_spriteBatch);
+            PC.DrawMe(_spriteBatch);
             _spriteBatch.End();
 
             base.Draw(gameTime);
